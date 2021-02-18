@@ -28,8 +28,9 @@ public class Movie {
         return movies;
     }
 
+    // would need to send an http request for figure out poster_sizes. Currently just hardcoding w342.
     public String getPosterPath() {
-        return posterPath;
+        return String.format("https://image.tmdb.org/t/p/w342/%s", posterPath);
     }
 
     public String getTitle() {
