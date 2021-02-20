@@ -1,18 +1,24 @@
 package com.example.flixster;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.codepath.asynchttpclient.AsyncHttpClient;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
+import com.example.flixster.adapters.MovieAdapter;
 import com.example.flixster.models.Movie;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Headers;
@@ -28,8 +34,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        RecyclerView rvMovies = findViewById(R.id.rvMovies);
+        movies = new ArrayList<>();
+        final int[] pageNumber = {2};
+
+        // Create the adapter
+        MovieAdapter movieAdapter = new MovieAdapter(this, movies);
+
+        // Set the adapter on the recycler view
+        rvMovies.setAdapter(movieAdapter);
+
+        // Set a Layout Manager on the recycler view
+        rvMovies.setLayoutManager(new LinearLayoutManager(this));
 
         AsyncHttpClient client = new AsyncHttpClient();
+
         client.get(NOW_PLAYING_URL, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int i, Headers headers, JSON json) {
@@ -38,7 +57,8 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     JSONArray results = jsonObject.getJSONArray("results");
                     Log.i(TAG, "Results: " + results.toString());
-                    movies = Movie.fromJsonArray(results);
+                    movies.addAll(Movie.fromJsonArray(results));
+                    movieAdapter.notifyDataSetChanged();
                     Log.i(TAG, "Movies: " + movies.size());
                 } catch (JSONException e) {
                     Log.e(TAG, "Hit json exception", e);
@@ -50,5 +70,37 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onFailure");
             }
         });
+
+        rvMovies.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (!recyclerView.canScrollVertically(1)) {
+                    client.get(NOW_PLAYING_URL + "&page=" + pageNumber[0], new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int i, Headers headers, JSON json) {
+                            Log.d(TAG, "onSuccess");
+                            JSONObject jsonObject = json.jsonObject;
+                            try {
+                                JSONArray results = jsonObject.getJSONArray("results");
+                                Log.i(TAG, "Results: " + results.toString());
+                                movies.addAll(Movie.fromJsonArray(results));
+                                movieAdapter.notifyDataSetChanged();
+                                pageNumber[0]++;
+                                Log.i(TAG, "Movies: " + movies.size());
+                            } catch (JSONException e) {
+                                Log.e(TAG, "Hit json exception", e);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(int i, Headers headers, String s, Throwable throwable) {
+                            Log.d(TAG, "onFailure");
+                        }
+                    });
+            }
+        }});
+
     }
 }
