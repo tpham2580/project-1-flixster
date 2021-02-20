@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"
-    android:layout_marginTop="8dp">
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+    android:padding="2dp">
 
     <ImageView
         android:id="@+id/ivPoster"
@@ -13,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
+        android:paddingLeft="5dp"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
@@ -32,5 +35,6 @@
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
         android:layout_toEndOf="@+id/ivPoster"
+        android:padding="2dp"
         tools:text="Wonder Woman comes into conflict with the Soviet Union during the Cold War in the 1980s and finds a formidable foe by the name of the Cheetah." />
 </RelativeLayout>
