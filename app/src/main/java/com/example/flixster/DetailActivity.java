@@ -30,6 +30,7 @@ public class DetailActivity extends YouTubeBaseActivity {
     TextView tvOverview;
     RatingBar ratingBar;
     YouTubePlayerView youTubePlayerView;
+    boolean isPopular;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,7 @@ public class DetailActivity extends YouTubeBaseActivity {
         tvTitle.setText(movie.getTitle());
         tvOverview.setText(movie.getOverview());
         ratingBar.setRating((float) movie.getRating());
+        isPopular = (float) movie.getRating() > 5.0;
 
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(String.format(VIDEOS_URL, movie.getMovieId()), new JsonHttpResponseHandler() {
@@ -58,7 +60,8 @@ public class DetailActivity extends YouTubeBaseActivity {
                     }
                     String youtubeKey = results.getJSONObject(0).getString("key");
                     Log.d("DetailActivity", youtubeKey);
-                    initializeYoutube(youtubeKey);
+
+                    initializeYoutube(youtubeKey, isPopular);
 
                 } catch (JSONException e) {
                     Log.e("DetailActivity", "Failed to parse JSON", e);
@@ -73,15 +76,18 @@ public class DetailActivity extends YouTubeBaseActivity {
 
     }
 
-    private void initializeYoutube(final String youtubeKey) {
+    private void initializeYoutube(final String youtubeKey, boolean isPopular) {
         youTubePlayerView.initialize(YOUTUBE_API_KEY, new YouTubePlayer.OnInitializedListener() {
             @Override
             public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
                 Log.d("DetailActivity", "onInitializationSuccess");
 
                 // do any work here to cue video, play video, etc.
-                youTubePlayer.cueVideo(youtubeKey);
-
+                if (isPopular){
+                    youTubePlayer.loadVideo(youtubeKey);
+                } else {
+                    youTubePlayer.cueVideo(youtubeKey);
+                }
             }
 
             @Override
@@ -89,5 +95,9 @@ public class DetailActivity extends YouTubeBaseActivity {
                 Log.d("DetailActivity", "onInitializationFailure");
             }
         });
+    }
+
+    private void checkPopular(){
+
     }
 }
