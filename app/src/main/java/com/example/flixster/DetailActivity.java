@@ -23,8 +23,7 @@ import okhttp3.Headers;
 
 public class DetailActivity extends YouTubeBaseActivity {
 
-    private static final String YOUTUBE_API_KEY = "a07e22bc18f5cb106bfe4cc1f83ad8ed";
-    public static final String VIDEOS_URL = "https://api.themoviedb.org/3/movie/%d/videos?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed";
+    public static final String VIDEOS_URL = "https://api.themoviedb.org/3/movie/%d/videos";
 
     TextView tvTitle;
     TextView tvOverview;
@@ -50,7 +49,7 @@ public class DetailActivity extends YouTubeBaseActivity {
         isPopular = (float) movie.getRating() > 5.0;
 
         AsyncHttpClient client = new AsyncHttpClient();
-        client.get(String.format(VIDEOS_URL, movie.getMovieId()), new JsonHttpResponseHandler() {
+        client.get(String.format(VIDEOS_URL + "?api_key=" + getString(R.string.YOUTUBE_API_KEY), movie.getMovieId()), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int i, Headers headers, JSON json) {
                 try {
@@ -77,7 +76,7 @@ public class DetailActivity extends YouTubeBaseActivity {
     }
 
     private void initializeYoutube(final String youtubeKey, boolean isPopular) {
-        youTubePlayerView.initialize(YOUTUBE_API_KEY, new YouTubePlayer.OnInitializedListener() {
+        youTubePlayerView.initialize(getString(R.string.YOUTUBE_API_KEY), new YouTubePlayer.OnInitializedListener() {
             @Override
             public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
                 Log.d("DetailActivity", "onInitializationSuccess");
